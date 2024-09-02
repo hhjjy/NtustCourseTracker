@@ -46,11 +46,10 @@ jobs:
         chmod 600 deploy_key
         scp -o StrictHostKeyChecking=no -i deploy_key -P $SERVER_PORT image.tar $SERVER_USER@$SERVER_HOST:~/image.tar
         ssh -o StrictHostKeyChecking=no -i deploy_key -p $SERVER_PORT $SERVER_USER@$SERVER_HOST '
-          docker load < ~/image.tar
-          docker stop ntust-course-tracker || true
-          docker rm ntust-course-tracker || true
-          docker run -d --name ntust-course-tracker \
+          sudo docker load < ~/image.tar
+          sudo docker stop ntust-course-tracker || true
+          sudo docker rm ntust-course-tracker || true
+          sudo docker run -d --name ntust-course-tracker \
             --restart unless-stopped \
             -v /home/$USER/course_logs:/app/logs \
-            ntust-course-tracker:latest
-        '
+            nt
