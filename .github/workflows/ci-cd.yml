@@ -55,5 +55,8 @@ jobs:
           docker load < ~/docker-image.tar
           docker stop ntust-course-tracker || true
           docker rm ntust-course-tracker || true
-          docker run -d --name ntust-course-tracker --restart unless-stopped ntust-course-tracker:latest
+          docker run -d --name ntust-course-tracker \
+            --restart unless-stopped \
+            -v /path/on/host/logs:/app/logs \
+            ntust-course-tracker:latest
         '
