@@ -41,3 +41,4 @@ jobs:
           git pull origin main &&
           python3 course_query_system.py
         '
+        
