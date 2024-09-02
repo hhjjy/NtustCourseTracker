@@ -8,15 +8,24 @@ import sqlite3
 from datetime import datetime
 import logging
 import os
+import sys
 
 # 設置日誌
-log_dir = os.environ.get('LOG_DIR', '/app/logs')
-os.makedirs(log_dir, exist_ok=True)
-logging.basicConfig(
-    filename=f'{log_dir}/course_query.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+def setup_logging():
+    if 'pytest' in sys.modules:
+        # 測試環境：使用 stderr
+        logging.basicConfig(level=logging.INFO, 
+                            format='%(asctime)s - %(levelname)s - %(message)s',
+                            stream=sys.stderr)
+    else:
+        # 生產環境：使用文件
+        log_dir = os.environ.get('LOG_DIR', os.path.join(os.getcwd(), 'logs'))
+        os.makedirs(log_dir, exist_ok=True)
+        logging.basicConfig(filename=os.path.join(log_dir, 'course_query.log'),
+                            level=logging.INFO,
+                            format='%(asctime)s - %(levelname)s - %(message)s')
+
+setup_logging()
 
 @dataclass
 class Course:
@@ -189,20 +198,19 @@ def main():
     logging.info("台科大課程查詢系統啟動")
     create_or_update_database()
     
-    # 立即執行一次查詢
     query_and_process_courses()
     
-    # 設置定期任務
-    schedule.every(1).hour.do(query_and_process_courses)
-    
-    logging.info("開始定期任務")
-    while True:
-        try:
-            schedule.run_pending()
-            time.sleep(1)
-        except Exception as e:
-            logging.error(f"執行定期任務時發生錯誤: {str(e)}")
-            time.sleep(1800)  # 發生錯誤時等待30分鐘後繼續
+    if not 'pytest' in sys.modules:
+        schedule.every(1).hour.do(query_and_process_courses)
+        
+        logging.info("開始定期任務")
+        while True:
+            try:
+                schedule.run_pending()
+                time.sleep(1)
+            except Exception as e:
+                logging.error(f"執行定期任務時發生錯誤: {str(e)}")
+                time.sleep(1800)
 
 if __name__ == "__main__":
     main()
