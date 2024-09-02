@@ -2,9 +2,10 @@ name: Python Script CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]  # 包括 main 和 master
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+  workflow_dispatch:  # 允許手動觸發
 
 jobs:
   test:
@@ -21,24 +22,3 @@ jobs:
         pip install -r requirements.txt
     - name: Run API test
       run: python -m unittest simple_api_test.py
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-    - uses: actions/checkout@v2
-    - name: Deploy and run script
-      env:
-        PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-        HOST: ${{ secrets.SERVER_HOST }}
-        PORT: ${{ secrets.SERVER_PORT }}
-        USER: ${{ secrets.SERVER_USER }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -p $PORT -i private_key ${USER}@${HOST} '
-          cd ~/NtustCourseTracker &&
-          git pull origin main &&
-          python3 course_query_system.py
-        '
-        
