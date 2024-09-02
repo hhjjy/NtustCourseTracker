@@ -1,0 +1,29 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Virtual Environment
+.python-version
+.env
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
